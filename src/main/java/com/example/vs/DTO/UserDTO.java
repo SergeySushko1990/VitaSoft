@@ -9,17 +9,10 @@ import java.sql.Timestamp;
 public class UserDTO {
 
     private Long id;
-
     @NotEmpty(message = "Username should be not empty")
     private String username;
-
-    @NotEmpty(message = "Password should be not empty")
-    private String password;
-
     @NotEmpty(message = "Name should be not empty")
     private String name;
-
     private Timestamp time;
-
     private String role;
 }

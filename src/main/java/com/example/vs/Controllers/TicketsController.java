@@ -40,7 +40,7 @@ public class TicketsController {
     }
 
     //Все заявки (только для администраторов)
-    @GetMapping("/all/")
+    @GetMapping("/all")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<TicketDTO> allTickets(@RequestParam(value = "size", defaultValue = "5", required = false) int size,
                                    @RequestParam(value = "page", defaultValue = "0", required = false) int page,
@@ -52,8 +52,8 @@ public class TicketsController {
     }
 
     //Все заявки (только для администраторов)
-    @GetMapping("/allEditor/")
-    @PreAuthorize("hasRole('ROLE_EDITOR')")
+    @GetMapping("/allEditor")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<TicketDTO> allTicketsEditor(@RequestParam(value = "size", defaultValue = "5", required = false) int size,
                                       @RequestParam(value = "page", defaultValue = "0", required = false) int page,
                                       @RequestParam(value = "sort", defaultValue = "DESC", required = false) String sort) {
@@ -63,7 +63,7 @@ public class TicketsController {
                 .collect(Collectors.toList());
     }
 
-    @PutMapping("/sendticket/")
+    @PutMapping("/sendticket")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<HttpStatus> sendTicket(Principal principal, @RequestParam(value = "id", required = true) long id){
         Optional<Ticket> ticket = ticketRepository.findById(id);
@@ -75,14 +75,14 @@ public class TicketsController {
         }
     }
 
-    @PutMapping("/acceptedticket/{id}")
+    @PutMapping("/acceptedticket")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EDITOR')")
-    public ResponseEntity<HttpStatus> acceptedTicket(Ticket ticket, @PathVariable("id") int id){
+    public ResponseEntity<HttpStatus> acceptedTicket(Ticket ticket, @RequestParam(value = "id", required = true) long id){
         ticketService.acceptedTicket(id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @PutMapping("/rejectedticket/")
+    @PutMapping("/rejectedticket")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_EDITOR')")
     public ResponseEntity<HttpStatus> rejectedTicket(Ticket ticket,
                                                      @RequestParam(value = "id", required = true) long id){
@@ -90,13 +90,14 @@ public class TicketsController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @GetMapping("/user/{id}")
-    public List<TicketDTO> userTickets(@PathVariable("id") long id){
+    @GetMapping("/user")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public List<TicketDTO> userTickets(@RequestParam(value = "id", required = true) long id){
         return ticketService.userTickets(id).stream().map(this::convertToTicketDTO)
                 .collect(Collectors.toList());
     }
 
-    @PutMapping("/edit/")
+    @PutMapping("/edit")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<HttpStatus> updateTicket(@RequestBody Ticket ticket, Principal principal, @RequestParam(value = "id", required = true) long id){
         Optional<Ticket> optionalTicket = ticketRepository.findById(id);

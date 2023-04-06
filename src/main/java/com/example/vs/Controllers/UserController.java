@@ -1,15 +1,19 @@
 package com.example.vs.Controllers;
 
+import com.example.vs.DTO.UserDTO;
 import com.example.vs.Entity.Users;
 import com.example.vs.Repository.UsersRepository;
 import com.example.vs.Services.UsersService;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users/")
@@ -20,6 +24,7 @@ public class UserController {
     private final UsersRepository usersRepository;
 
     @PostMapping("/new")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<HttpStatus> addUser(@RequestBody Users user){
         usersService.addUser(user);
         return ResponseEntity.ok(HttpStatus.CREATED);
@@ -38,5 +43,17 @@ public class UserController {
         else {
             return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public List<UserDTO> allUsers(){
+       return usersRepository.findAll().stream().map(this::convertToTicketDTO)
+               .collect(Collectors.toList());
+    }
+
+    private UserDTO convertToTicketDTO(Users users){
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(users, UserDTO.class);
     }
 }
